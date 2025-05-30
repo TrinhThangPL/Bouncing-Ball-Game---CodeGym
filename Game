@@ -1,55 +1,56 @@
+```python
 import pygame
 import random
 import numpy as np
 import asyncio
 import platform
 
-# Initialize Pygame
+# Khởi tạo Pygame
 pygame.init()
 
-# Set up the game window
+# Thiết lập cửa sổ game
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Bouncing Ball Game")
+pygame.display.set_caption("Trò Chơi Bouncing Ball")
 
-# Colors
-BG_COLOR = (30, 30, 30)
-BALL_COLOR = (255, 165, 0)
+# Màu sắc
+BG_COLOR = (30, 30, 30)  # Màu nền (gần đen)
+BALL_COLOR = (255, 165, 0)  # Màu bóng (cam)
 
-# Ball properties
+# Thuộc tính bóng
 BALL_RADIUS = 20
-ball_pos = [WIDTH // 2, HEIGHT // 2]
-ball_speed = [random.choice([-5, 5]), random.choice([-5, 5])]
+ball_pos = [WIDTH // 2, HEIGHT // 2]  # Vị trí ban đầu: giữa màn hình
+ball_speed = [random.choice([-5, 5]), random.choice([-5, 5])]  # Tốc độ ngẫu nhiên
 
-# Create a simple bounce sound using NumPy array (since local file I/O is not supported)
+# Tạo âm thanh va chạm (sử dụng NumPy vì Pyodide không hỗ trợ file cục bộ)
 sample_rate = 44100
-duration = 0.1  # Short sound duration
+duration = 0.1  # Thời gian âm thanh (ngắn)
 t = np.linspace(0, duration, int(sample_rate * duration), False)
-# Generate a simple sine wave for bounce sound
+# Tạo sóng sine đơn giản cho âm thanh va chạm
 sound_array = (np.sin(440 * 2 * np.pi * t) * 32767).astype(np.int16)
-# Convert to 2D array for stereo compatibility
+# Chuyển thành mảng 2D cho âm thanh stereo
 sound_array_stereo = np.column_stack((sound_array, sound_array))
 bounce_sound = pygame.sndarray.make_sound(sound_array_stereo)
 
-# Frame rate
+# Tốc độ khung hình
 FPS = 60
 
-# Clock for controlling frame rate
+# Đồng hồ để kiểm soát FPS
 clock = pygame.time.Clock()
 
 def setup():
-    """Initialize game settings (called once at start)"""
+    """Thiết lập ban đầu cho game"""
     pass
 
 def update_loop():
-    """Update game state each frame"""
+    """Cập nhật trạng thái game mỗi khung hình"""
     global ball_pos, ball_speed
 
-    # Update ball position
+    # Cập nhật vị trí bóng
     ball_pos[0] += ball_speed[0]
     ball_pos[1] += ball_speed[1]
 
-    # Handle collisions with window edges
+    # Xử lý va chạm với cạnh màn hình
     if ball_pos[0] <= BALL_RADIUS or ball_pos[0] >= WIDTH - BALL_RADIUS:
         ball_speed[0] = -ball_speed[0]
         bounce_sound.play()
@@ -57,29 +58,30 @@ def update_loop():
         ball_speed[1] = -ball_speed[1]
         bounce_sound.play()
 
-    # Clear screen
+    # Xóa màn hình
     screen.fill(BG_COLOR)
 
-    # Draw ball
+    # Vẽ bóng
     pygame.draw.circle(screen, BALL_COLOR, (int(ball_pos[0]), int(ball_pos[1])), BALL_RADIUS)
 
-    # Update display
+    # Cập nhật màn hình
     pygame.display.flip()
 
 async def main():
-    """Main game loop for Pyodide compatibility"""
+    """Vòng lặp game chính, tương thích với Pyodide"""
     setup()
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return  # Exit the loop to stop the game
+                return  # Thoát game khi đóng cửa sổ
 
         update_loop()
-        await asyncio.sleep(1.0 / FPS)  # Control frame rate
+        await asyncio.sleep(1.0 / FPS)  # Điều chỉnh tốc độ khung hình
 
-# Run the game
+# Chạy game
 if platform.system() == "Emscripten":
     asyncio.ensure_future(main())
 else:
     if __name__ == "__main__":
         asyncio.run(main())
+```
