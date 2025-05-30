@@ -6,4 +6,4 @@ Một trò chơi 2D đơn giản sử dụng Pygame, nơi một quả bóng di c
 - NumPy: `pip install numpy`
 ## Cách chạy
 ```bash
-python bouncing_ball.py
+python Game.py
